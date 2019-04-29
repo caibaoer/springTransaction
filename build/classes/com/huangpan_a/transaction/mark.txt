@@ -1,0 +1,10 @@
+导入了spring-jdbc-4.0.5.RELEASE.jar之后，也需要导入spring-tx-4.0.5.RELEASE.jar，
+两个jar一般都是配合使用，不然在使用spring框架时 ，继承JdbcDaoSupport时，出现：
+The type org.springframework.dao.support.DaoSupport cannot be resolved. 
+It is indirectly referenced from required .class files的提示错误，
+最后导入Spring-tx.jar正常
+
+
+package com.huangpan_a.transaction包
+这里面是使用spring框架自带的jdbc操作数据库，没有使用hibernate框架，也没有使用事务。
+这里没有加事务，所以出现异常时候，数据就会出现问题。

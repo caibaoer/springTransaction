@@ -1,0 +1,6 @@
+spring底层使用 TransactionTemplate 事务模板进行操作。
+操作
+1.service 需要获得 TransactionTemplate 
+2.spring 配置模板，并注入给service
+3.模板需要注入事务管理器
+4.配置事务管理器：DataSourceTransactionManager ，需要注入DataSource

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"   
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       					   http://www.springframework.org/schema/beans/spring-beans.xsd
+       					   http://www.springframework.org/schema/context       
+       					   http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop.xsd
+						http://www.springframework.org/schema/tx 
+       				  http://www.springframework.org/schema/tx/spring-tx.xsd" >	
+						
+											
+	<context:property-placeholder location="classpath:properties/mysql.properties"  ignore-unresolvable="true"/>					
+				
+		<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${mysql.driverClassName}"></property>
+		<property name="jdbcUrl" value="${mysql.url}"></property>
+		<property name="user" value="${mysql.username}"></property>
+		<property name="password" value="${mysql.password}"></property>
+	</bean>		
+				
+			<!-- 配置事务管理器 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>		
+				
+				
+	<!-- 
+	4 service 代理对象 
+		4.1 proxyInterfaces 接口 
+		4.2 target 目标类
+		4.3 transactionManager 事务管理器
+		4.4 transactionAttributes 事务属性（事务详情）
+			prop.key ：确定哪些方法使用当前事务配置
+			prop.text:用于配置事务详情
+				格式：PROPAGATION,ISOLATION,readOnly,-Exception,+Exception
+					传播行为		隔离级别	是否只读		异常回滚		异常提交
+				例如：
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT</prop> 默认传播行为，和隔离级别
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly</prop> 只读
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT,+java.lang.ArithmeticException</prop>  有异常扔提交
+	 -->			
+				
+				
+	<bean id="proxyUserService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<!-- proxyInterfaces 接口 -->
+		<property name="proxyInterfaces" value="com.huangpan_c.transaction.UserService"></property>
+		<!-- target 目标类 -->
+		<property name="target" ref="userService"></property>
+		<!-- transactionManager 事务管理器 -->
+		<property name="transactionManager" ref="txManager"></property>
+		<!-- transactionAttributes 事务属性（事务详情）
+		prop.key ：确定哪些方法使用当前事务配置
+		prop.text:用于配置事务详情
+		格式：PROPAGATION,     ISOLATION,    readOnly,     -Exception,                     +Exception
+					传播行为		           隔离级别	     是否只读		      异常回滚		                      异常提交
+				例如：
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT</prop> 默认传播行为，和隔离级别
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT,readOnly</prop> 只读
+					<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT,+java.lang.ArithmeticException</prop>  有异常扔提交 
+		 -->
+		<property name="transactionAttributes">
+			<props>
+				<prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT</prop>
+			</props>
+		</property>
+	</bean>
+				
+			
+						
+	<!--  1-->
+	<bean name="userService"  class="com.huangpan_c.transaction.UserServiceImpl">
+		<property name="userDao" ref="userDao"></property>                                 
+	</bean>
+	
+	<!--  2-->
+	<bean name="userDao"  class="com.huangpan_c.transaction.UserDaoImpl">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+
+
+</beans>
